@@ -54,14 +54,14 @@ public class LeaderboardScrollView : MonoBehaviour
         _lastKnownMaxRange = _leaderboardFetcher.MaxKnownRank;
 
         // Update holder size for scrolling based on max possible rank
-        _holder.sizeDelta = new Vector2(_holder.sizeDelta.x, GetOffset(_leaderboardFetcher.MaxKnownRank));
+        _holder.sizeDelta = new Vector2(_holder.sizeDelta.x, GetOffset(_leaderboardFetcher.MaxKnownRank + 1));
 
         // Calculate most bottom index 
-        var botIndex = Mathf.Min(_leaderboardFetcher.MaxKnownRank, topIndex + _amountOfVisibleElements);
+        var botIndex = Mathf.Min(_leaderboardFetcher.MaxKnownRank, topIndex + _amountOfVisibleElements - 1);
 
         // Iterate over all elements
         var poolId = 0;
-        for (var i = topIndex; i < botIndex; i++)
+        for (var i = topIndex; i <= botIndex; i++)
         {
             // Get entry
             var entry = _leaderboardFetcher.GetEntry(i);
