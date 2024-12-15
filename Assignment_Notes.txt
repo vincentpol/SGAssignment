@@ -18,5 +18,12 @@ Progress steps:
 
 Suggested improvements:
 - A working SVG image importer. Possibly an alternative package to the Unity provided one.
-- A default image if no image can be loaded (Rank #4 will currently show an endless spinner)
+- A placeholder image if no image can be loaded (Rank #4 will currently show an endless spinner)
+- Better decoupling where appropriate.
+	- A separate Image downloader class
+	- A separate Sprite building class
+	- A separate Request queue class
+- Task cancellation support 
+- Reusable method for the retry logic.
+- Make settings configurable. 
 - Some nicer art :)
