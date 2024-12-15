@@ -42,7 +42,6 @@ public class LeaderboardFetcher : MonoBehaviour
     private const string UrlFormat = "https://private-24ba57-softgamesleaderboard.apiary-mock.com/leaderboard?page={0}";
 
     public int MaxKnownRank { get; private set; }
-    public Action OnMaxKnownRankChanged;
 
     private int _knownPages = 0;
     private Dictionary<int, LeaderboardEntry> _cachedData = new();
@@ -146,10 +145,7 @@ public class LeaderboardFetcher : MonoBehaviour
 
                     // Update max known rank
                     if (maxRank > MaxKnownRank)
-                    {
                         MaxKnownRank = maxRank;
-                        OnMaxKnownRankChanged?.Invoke();
-                    }
 
                     return;
                 }
