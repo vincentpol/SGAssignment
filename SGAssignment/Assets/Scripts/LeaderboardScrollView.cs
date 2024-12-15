@@ -4,6 +4,8 @@ using UnityEngine;
 public class LeaderboardScrollView : MonoBehaviour
 {
     [SerializeField]
+    private LoadingSpinner _loadingSpinner;
+    [SerializeField]
     private LeaderboardFetcher _leaderboardFetcher;
 
     [SerializeField]
@@ -32,6 +34,24 @@ public class LeaderboardScrollView : MonoBehaviour
 
             element.gameObject.SetActive(false);
         }
+
+        // If the leaderboard fetcher is not done loading yet
+        if (!_leaderboardFetcher.IsDoneLoading)
+        {
+            // Disable for now and show loading spinner
+            enabled = false;
+            _loadingSpinner.SetActive(true);
+            _leaderboardFetcher.OnDoneLoading += OnDoneLoading;
+        }
+        else
+        {
+            OnDoneLoading();
+        }
+    }
+
+    private void OnDestroy()
+    {
+        _leaderboardFetcher.OnDoneLoading -= OnDoneLoading;
     }
 
     private void Update()
@@ -80,6 +100,13 @@ public class LeaderboardScrollView : MonoBehaviour
             element.transform.localPosition = Vector3.down * offset;
             element.Inject(entry);
         }
+    }
+
+    private void OnDoneLoading()
+    {
+        _leaderboardFetcher.OnDoneLoading -= OnDoneLoading;
+        _loadingSpinner.SetActive(false);
+        enabled = true;
     }
 
     private float GetOffset(int index)

@@ -6,15 +6,13 @@ using UnityEngine.UI;
 public class LeaderboardScrollElement : MonoBehaviour
 {
     [SerializeField]
-    private float _spinSpeed = 360f;
-    [SerializeField]
     private int _topRankThreshold = 3;
 
     [SerializeField]
     private Color[] _placeColors;
 
     [SerializeField]
-    private GameObject _loaderSpinner;
+    private LoadingSpinner _loaderSpinner;
     [SerializeField]
     private Image _background;
     [SerializeField]
@@ -61,13 +59,6 @@ public class LeaderboardScrollElement : MonoBehaviour
         // If we already have a sprite, call the callback
         if (_entry.Sprite != null)
             OnSpriteLoaded();
-    }
-
-    private void Update()
-    {
-        // If the loader spinner is active, rotate it
-        if (_loaderSpinner.activeSelf)
-            _loaderSpinner.transform.localEulerAngles += Vector3.forward * _spinSpeed * Time.deltaTime;
     }
 
     private void OnDestroy()

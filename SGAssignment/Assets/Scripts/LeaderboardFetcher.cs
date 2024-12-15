@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -20,7 +21,7 @@ public class LeaderboardFetcher : MonoBehaviour
     {
         public int rank = 0;
         public int score = 0;
-        public string player_name = string.Empty;
+        public string player_name = "DefaultName";
         public string avatar_url = string.Empty;
 
         public bool IsValid()
@@ -42,9 +43,11 @@ public class LeaderboardFetcher : MonoBehaviour
     private const string UrlFormat = "https://private-24ba57-softgamesleaderboard.apiary-mock.com/leaderboard?page={0}";
 
     public int MaxKnownRank { get; private set; }
+    public bool IsDoneLoading { get; private set; }
+    public Action OnDoneLoading;
 
     private int _knownPages = 0;
-    private Dictionary<int, LeaderboardEntry> _cachedData = new();
+    private List<LeaderboardEntry> _cachedData = new();
 
     private void Awake()
     {
@@ -63,14 +66,34 @@ public class LeaderboardFetcher : MonoBehaviour
             await FetchPageDataAsync(i);
         }
 
+        FixRankings();
+
+        IsDoneLoading = true;
+        OnDoneLoading?.Invoke();
+
         Debug.Log("Finished downloading all pages");
     }
 
     public LeaderboardEntry GetEntry(int rankId)
     {
-        return _cachedData.TryGetValue(rankId, out var entry)
-            ? entry
-            : null;
+        if (rankId < 1 || rankId > _cachedData.Count)
+            return null;
+
+        return _cachedData[rankId - 1];
+    }
+
+    private void FixRankings()
+    {
+        _cachedData = _cachedData
+            .OrderByDescending(c => c.Score)
+            .ToList();
+
+        for (var i = 0; i < _cachedData.Count; i++)
+        {
+            var entry = _cachedData[i];
+
+            entry.ChangeRank(i + 1);
+        }
     }
 
     private async Task FetchPageDataAsync(int pageId = 1)
@@ -114,27 +137,17 @@ public class LeaderboardFetcher : MonoBehaviour
                     int maxRank = int.MinValue;
                     foreach (var record in page.records)
                     {
-                        // Ignore any invalid record
-                        if (!record.IsValid())
-                            continue;
-
                         if (maxRank < record.rank)
                             maxRank = record.rank;
 
-                        // Save it
-                        LeaderboardEntry entry;
-                        if (!_cachedData.ContainsKey(record.rank))
-                        {
-                            entry = new();
-                            _cachedData.Add(record.rank, entry);
-                        }
-                        else
-                        {
-                            entry = _cachedData[record.rank];
-                        }
+                        // Create new entry
+                        LeaderboardEntry entry = new();
 
-                        // Update data
-                        entry.UpdateData(record.rank, record.score, record.player_name, record.avatar_url);
+                        // Update static data
+                        entry.UpdateData(record.score, record.player_name, record.avatar_url);
+
+                        // Add it to our list
+                        _cachedData.Add(entry);
                     }
 
                     // Save known amount of pages

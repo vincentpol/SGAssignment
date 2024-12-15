@@ -13,25 +13,30 @@ public class LeaderboardEntry
     public int Rank { get; private set; }
     public int Score { get; private set; }
     public string PlayerName { get; private set; }
+    public string AvatarUrl { get; private set; }
     public Sprite Sprite { get; private set; }
 
-    private string _avatarUrl;
     private bool _isInWaitingQueue;
 
     private static List<LeaderboardEntry> WaitingQueue = new();
 
-    public void UpdateData(int rank, int score, string playerName, string avatarUrl)
+    public void ChangeRank(int rank)
     {
         Rank = rank;
+    }
+
+    public void UpdateData(int score, string playerName, string avatarUrl)
+    {
         Score = score;
         PlayerName = playerName;
-        _avatarUrl = avatarUrl;
+        AvatarUrl = avatarUrl;
     }
 
     public void LoadImage()
     {
         // If we already have a sprite or are already in the queue, early out
-        if (Sprite != null
+        if (string.IsNullOrEmpty(AvatarUrl)
+            || Sprite != null
             || _isInWaitingQueue)
             return;
 
@@ -51,7 +56,7 @@ public class LeaderboardEntry
 
     private async Task DownloadAndRenderSVGAsync()
     {
-        Debug.Log($"Starting download {_avatarUrl}");
+        Debug.Log($"Starting download {AvatarUrl}");
 
         int currentFailedAttempts = 0;
         float delayTimeInSeconds = 1f;
@@ -60,7 +65,7 @@ public class LeaderboardEntry
         {
             try
             {
-                using (UnityWebRequest request = UnityWebRequest.Get(_avatarUrl))
+                using (UnityWebRequest request = UnityWebRequest.Get(AvatarUrl))
                 {
                     await request.SendWebRequest();
 
@@ -104,7 +109,7 @@ public class LeaderboardEntry
             }
         }
 
-        Debug.Log($"Finished downloading {_avatarUrl}");
+        Debug.Log($"Finished downloading {AvatarUrl}");
 
         // Remove from queue
         WaitingQueue.RemoveAt(0);
