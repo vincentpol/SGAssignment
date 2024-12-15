@@ -1,0 +1,22 @@
+Progress steps:
+- Setup a way to asynchronously fetch page requests.
+- Sometimes the host rejects the call so I put the request in a loop to try a few times, early out if it fails too often.
+- The data was invalid and contained trailing commas and bad entries, so I made sure to filter the trailing commas before parsing it.
+- Stored the final data into LeaderboardEntry, which acts as the model of sorts for a record.
+- The ranks are determined based on the score, rather than the reported rank from the data. 
+- This object is also responsible to internally download the avatar image to a Sprite, with an action that can be used as a callback.
+- Used a similar pattern for the page requests to make sure if anything goes wrong it would try again, with an early out if it failed too often. 
+- Installed unity's experimental SVG package to read the images, but after many experiments could not make it work.
+- Saved the images from the web and manually imported them, but through debugging noticed the SVG importer internally does an early out. 
+- Manually looked into an image's data to see if the necessary data could be extracted using regex, but could not make that work either. 
+- To keep myself timeboxed I moved on to the scroll view. 
+- Created a LeaderboardScrollView, which uses a standard Scroll View. 
+- The size of the scrollable area was based on the amount of LeaderboardEntries.
+- The area's position then determines which entries on the scrollable area are in view. 
+- The visible entries are show via pre-instantiated objects from an object pool. 
+- Only when an entry is in view does the avatar image start downloading.  
+
+Suggested improvements:
+- A working SVG image importer. Possibly an alternative package to the Unity provided one.
+- A default image if no image can be loaded (Rank #4 will currently show an endless spinner)
+- Some nicer art :)
